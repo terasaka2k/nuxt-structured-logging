@@ -2,4 +2,4 @@
 
 のサンプル。
 
-ただしtraceをリクエストごとに分離する（cross-reuqest pollutionをさける）方法がわからないのでFIXME状態。
+ただしtraceをリクエストごとに分離する（cross-request pollutionをさける）方法がわからないのでFIXME状態。
