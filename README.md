@@ -6,6 +6,8 @@ https://github.com/terasaka2k/structured-logging-gcp-example と同様（Nuxt.js
 
 ただしtraceをリクエストごとに分離する（cross-request pollutionをさける）方法がわからないのでFIXME状態。
 
+`AsyncLocalStorage`で対応できる様子。
+
 
 ### example
 ```bash

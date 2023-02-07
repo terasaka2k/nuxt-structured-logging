@@ -1,40 +1,30 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { format } from "util"; // Node.js library
 import { Logging, LogSync } from "@google-cloud/logging";
+import { NitroApp } from 'nitropack';
 import { Layer, EventHandler } from "h3";
 
 
 export default defineNitroPlugin((nitroApp) => {
-  const layer: Layer = {
-    route: "",
-    handler: eventHandler(captureTraceId),
-  };
-
-  // https://github.com/nuxt/nuxt/issues/14177#issuecomment-1397346652
-  nitroApp.h3App.stack.unshift(layer);
-
-  applyPlugin();
+  applyPlugin(nitroApp);
 });
 
 
 const GOOGLE_CLOUD_PROJECT = useRuntimeConfig().GOOGLE_CLOUD_PROJECT || process.env.GOOGLE_CLOUD_PROJECT;
-let _traceId = '';  // FIXME: MUST BE ISOLATED PER REQUEST
 
-function clearTrace() {
-  _traceId = '';
-}
+export const storage = new AsyncLocalStorage();
+
 
 function setTrace(trace: string) {
-  _traceId = trace;
+  return storage.getStore().trace = trace;
 }
 
 function getTrace() {
-  return _traceId;
+  return storage.getStore().trace;
 }
 
 
 const captureTraceId: EventHandler = (event) => {
-  clearTrace();
-
   const traceHeader = event.node.req.headers['X-Cloud-Trace-Context'.toLowerCase()];
   if (!traceHeader || typeof traceHeader !== 'string') {
     return;
@@ -51,16 +41,38 @@ const captureTraceId: EventHandler = (event) => {
 
 let once = false;
 
-export async function applyPlugin() {
+export async function applyPlugin(nitroApp: NitroApp) {
   if (once) {
     return;
   }
   once = true;
 
+  const layer: Layer = {
+    route: "",
+    handler: eventHandler(captureTraceId),
+  };
+
+  // https://github.com/nuxt/nuxt/issues/14177#issuecomment-1397346652
+  nitroApp.h3App.stack.unshift(layer);
+
+  const h3AppHandler = nitroApp.h3App.handler;
+  nitroApp.h3App.handler = (...args) => {
+    return storage.run(createStore(), () => {
+      return h3AppHandler(...args);
+    });
+  };
+
   const logger = await makeLogger();
 
   applyConsolePatch(logger);
 }
+
+function createStore() {
+  return {
+    trace: '',
+  };
+}
+
 
 async function makeLogger() {
   const logging = new Logging({
