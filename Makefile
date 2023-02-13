@@ -6,9 +6,12 @@ curl-trace-local:
 
 
 
+IMAGE = us-central1-docker.pkg.dev/$(GOOGLE_CLOUD_PROJECT)/struct-log-docker/nuxt
 
 .PHONY: deploy-dev
 deploy-dev:
-	env DOCKER_BUILDKIT=1 docker image build -t us-central1-docker.pkg.dev/$(GOOGLE_CLOUD_PROJECT)/struct-log-docker .
-	gcloud --project=$(GOOGLE_CLOUD_PROJECT) run deploy struct-log --image=us-central1-docker.pkg.dev/$(GOOGLE_CLOUD_PROJECT)/struct-log-docker \
-		--max-instances=1 --min-instances=0 --cpu=1 --memory=512Mi --region=us-central1
+	env DOCKER_BUILDKIT=1 docker image build -t $(IMAGE) .
+	docker image push $(IMAGE)
+	gcloud --project=$(GOOGLE_CLOUD_PROJECT) run deploy struct-log --image=$(IMAGE) \
+		--max-instances=1 --min-instances=0 --cpu=1 --memory=512Mi --region=us-central1 \
+		--allow-unauthenticated

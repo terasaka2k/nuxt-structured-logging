@@ -2,6 +2,6 @@ export default defineNuxtConfig({
   ssr: false,
 
   modules: [
-    ['./modules/gcp-log/module'],
+    './modules/gcp-log/module',
   ],
 });

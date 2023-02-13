@@ -3,15 +3,6 @@ import { Logging, LogSync } from "@google-cloud/logging";
 import { getTrace as getTraceId } from "./storage";
 
 
-
-export async function makeLogger() {
-  const logging = new Logging();
-  await logging.setDetectedResource();
-
-  const log = logging.logSync("structured-log");
-  return log;
-}
-
 type LoggerMethod = keyof LogSync;
 
 type ConsoleMethodMap<Methods extends keyof Console> = {
@@ -27,8 +18,9 @@ const consoleMethodMap: ConsoleMethodMap<"trace" | "debug" | "info" | "log" | "w
   "error": "error",
 };
 
-export function applyConsolePatch(logger: LogSync) {
-  exposeOriginMethods();
+
+export async function applyConsolePatch() {
+  const logger = await makeLogger();
 
   for (
     const [consoleMethod, loggerMethod] of Object.entries(consoleMethodMap)
@@ -36,6 +28,7 @@ export function applyConsolePatch(logger: LogSync) {
     console[consoleMethod as /*dummy type*/"log"] = textLog(logger, loggerMethod);
   }
 }
+
 
 const textLog =
   (logger: LogSync, method: LoggerMethod) =>
@@ -49,22 +42,22 @@ const textLog =
     };
 
 
+async function makeLogger(logName = "app") {
+  const logging = new Logging();
+  await logging.setDetectedResource();
+
+  const log = logging.logSync(logName);
+  return log;
+}
+
+
 function makeEntryMeta() {
   const traceId = getTraceId();
   if (traceId) {
     return {
-      // trace: `projects/{{ projectId }}/traces/${traceId}`,
-      trace: traceId,
+      trace: `projects/private-playground-terasaka-1/traces/${traceId}`,
+      //trace: traceId,
     };
   }
   return {};
-}
-
-
-function exposeOriginMethods() {
-  for (const name of Object.keys(consoleMethodMap)) {
-    if (!console["_" + name]) {
-      console["_" + name] = console[name];
-    }
-  }
 }

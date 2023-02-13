@@ -1,0 +1,12 @@
+*
+
+!/.npmrc
+!/package.json
+!/pnpm-lock.yaml
+
+!/nuxt.config.ts
+!/tsconfig.json
+
+!/app.vue
+!/server
+!/modules

@@ -1,11 +1,6 @@
 import { defineNuxtModule, addServerPlugin, createResolver } from '@nuxt/kit'
 
-export interface ModuleOptions {
-  /**
-   * GOOGLE_CLOUD_PROJECT
-   */
-  projectId?: string;
-}
+export interface ModuleOptions {}
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
