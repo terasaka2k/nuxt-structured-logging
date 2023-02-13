@@ -35,7 +35,7 @@ const textLog =
     (message?: any, ...optionalParams: any[]) => {
       const textPayload = format(message, ...optionalParams);
 
-      const meta = makeEntryMeta();
+      const meta = makeEntryMeta(logger.logging.projectId);
       const entry = logger.entry(meta, textPayload);
 
       (logger[method] as LogSync["write"])(entry);
@@ -44,19 +44,20 @@ const textLog =
 
 async function makeLogger(logName = "app") {
   const logging = new Logging();
+  await logging.setProjectId();
   await logging.setDetectedResource();
+  console.assert(logging.projectId, 'Project ID must be set');
 
   const log = logging.logSync(logName);
   return log;
 }
 
 
-function makeEntryMeta() {
+function makeEntryMeta(projectId: string) {
   const traceId = getTraceId();
   if (traceId) {
     return {
-      trace: `projects/private-playground-terasaka-1/traces/${traceId}`,
-      //trace: traceId,
+      trace: `projects/${projectId}/traces/${traceId}`,
     };
   }
   return {};

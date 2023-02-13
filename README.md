@@ -5,9 +5,12 @@
 https://github.com/terasaka2k/structured-logging-gcp-example と同様（Nuxt.jsバージョン）。
 
 
+see [modules/gcp-log/README.md](modules/gcp-log/README.md)
+
+
 ### example
 ```bash
-npm run dev
+GOOGLE_CLOUD_PROJECT=dummy-local npm run dev
 ```
 
 ```bash
