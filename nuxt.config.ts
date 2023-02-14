@@ -4,4 +4,8 @@ export default defineNuxtConfig({
   modules: [
     './modules/gcp-log/module',
   ],
+
+  gcpLog: {
+    enable: process.env.NODE_ENV === 'production',
+  },
 });

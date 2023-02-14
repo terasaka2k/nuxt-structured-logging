@@ -21,8 +21,6 @@ Google関係のライブラリではしばしば同様の振る舞いがあっ�
 ## Usage
 Nuxtのモジュールとして独立して実装させています。
 
-今のところ設定項目はありません。
-
 ログ名(`logName`)は`app`です（ハードコードしています）。
 
 ```bash
@@ -34,6 +32,10 @@ export default defineNuxtConfig({
   modules: [
     './modules/gcp-log/module',
   ],
+
+  gcpLog: {
+    enable: process.env.NODE_ENV === 'production',
+  },
 });
 ```
 
