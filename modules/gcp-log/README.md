@@ -36,3 +36,10 @@ export default defineNuxtConfig({
   ],
 });
 ```
+
+## Detail
+- Nuxt(Nitro/h3)のリクエストハンドラーを
+- `AsyncLocalStorage.run()`によりラップすることで
+- リクエストごとに分離された変数の箱を使えるようにしています
+- この箱に`X-Cloud-Trace-Context`ヘッダーの値を格納することでいつでもどこからでも利用できるようにしています
+- ログ統合は単に各`console.*`を`@google-cloud/logging`のロガーに移譲するようにラップしています
